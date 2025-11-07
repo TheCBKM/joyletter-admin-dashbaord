@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-accent-100 text-gray-900 antialiased;
+  background-image: url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd' opacity='0.08'%3E%3Cpath d='M0 0h80v80H0zM80 80h80v80H80z' fill='%23864cff'/%3E%3Cpath d='M80 0h80v80H80zM0 80h80v80H0z' fill='%236d2af4'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+
+.glass-panel {
+  @apply bg-white/60 backdrop-blur-xl shadow-glass border border-white/50;
+}
+
+.gradient-ring {
+  background: radial-gradient(circle at center, rgba(134, 76, 255, 0.18), transparent 65%);
+}
+
