@@ -3,11 +3,28 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { Route } from "next";
+import type { LucideIcon } from "lucide-react";
 import { LayoutGrid, Menu, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const navItems = [
+type EnabledNavItem = {
+  label: string;
+  href: Route;
+  icon: LucideIcon;
+  disabled?: false;
+};
+
+type DisabledNavItem = {
+  label: string;
+  icon: LucideIcon;
+  disabled: true;
+};
+
+type NavItem = EnabledNavItem | DisabledNavItem;
+
+const navItems: NavItem[] = [
   {
     label: "Groups",
     href: "/",
@@ -15,7 +32,6 @@ const navItems = [
   },
   {
     label: "Members",
-    href: "/members",
     icon: Users,
     disabled: true,
   },
@@ -29,38 +45,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="relative flex min-h-screen">
       <aside
         className={cn(
-          "glass-panel fixed inset-y-4 left-4 z-30 hidden w-64 flex-col rounded-3xl p-6 lg:flex",
+          "glass-panel fixed inset-y-4 left-4 z-30 hidden w-64 flex-col rounded-3xl p-6 lg:flex"
         )}
       >
         <BrandHeader />
         <nav className="mt-8 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.disabled ? "#" : item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
-                  isActive
-                    ? "bg-brand-500/15 text-brand-700 shadow-inner"
-                    : "text-gray-600 hover:bg-white/70 hover:text-brand-700",
-                  item.disabled && "cursor-not-allowed opacity-50"
-                )}
-                onClick={() => setMobileOpen(false)}
-                aria-disabled={item.disabled}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
+          {navItems.map((item) => (
+            <NavItemLink
+              key={item.disabled ? item.label : item.href}
+              item={item}
+              isActive={!item.disabled && pathname === item.href}
+              onSelect={() => setMobileOpen(false)}
+            />
+          ))}
         </nav>
         <div className="mt-auto rounded-2xl bg-gradient-card p-4 text-xs text-brand-900/70">
           <p className="font-semibold">Need insights?</p>
           <p className="mt-1 text-brand-900/60">
-            Track sankalp progress and member engagement directly from Joyletter Admin.
+            Track sankalp progress and member engagement directly from Joyletter
+            Admin.
           </p>
         </div>
       </aside>
@@ -88,28 +91,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           {isMobileOpen ? (
             <nav className="glass-panel mx-4 mt-2 flex flex-col gap-1 rounded-3xl p-3 lg:hidden">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.disabled ? "#" : item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
-                      isActive
-                        ? "bg-brand-500/15 text-brand-700 shadow-inner"
-                        : "text-gray-600 hover:bg-white/70 hover:text-brand-700",
-                      item.disabled && "cursor-not-allowed opacity-50"
-                    )}
-                    onClick={() => setMobileOpen(false)}
-                    aria-disabled={item.disabled}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <NavItemLink
+                  key={item.disabled ? item.label : item.href}
+                  item={item}
+                  isActive={!item.disabled && pathname === item.href}
+                  onSelect={() => setMobileOpen(false)}
+                />
+              ))}
             </nav>
           ) : null}
         </header>
@@ -136,3 +125,37 @@ function BrandHeader({ compact = false }: { compact?: boolean }) {
   );
 }
 
+function NavItemLink({
+  item,
+  isActive,
+  onSelect,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  onSelect?: () => void;
+}) {
+  const Icon = item.icon;
+  const className = cn(
+    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
+    isActive
+      ? "bg-brand-500/15 text-brand-700 shadow-inner"
+      : "text-gray-600 hover:bg-white/70 hover:text-brand-700",
+    item.disabled && "cursor-not-allowed opacity-50"
+  );
+
+  if (item.disabled) {
+    return (
+      <span className={className} aria-disabled>
+        <Icon className="h-4 w-4" />
+        {item.label}
+      </span>
+    );
+  }
+
+  return (
+    <Link href={item.href} className={className} onClick={onSelect}>
+      <Icon className="h-4 w-4" />
+      {item.label}
+    </Link>
+  );
+}
